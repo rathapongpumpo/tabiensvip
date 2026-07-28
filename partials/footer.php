@@ -8,7 +8,7 @@
     <div class="container footer-grid">
         <div>
             <a class="brand brand-light" href="/">
-                <img class="brand-logo" src="/image/logo_บริษัท.jpg" alt="">
+                <img class="brand-logo" src="/image/logo-240.webp" width="240" height="160" loading="lazy" decoding="async" alt="">
                 <span><strong>MY NAME IS TABIEN</strong><small>CO.,LTD. · PHUKET</small></span>
             </a>
             <p>คัดสรรทะเบียนสวยสำหรับรถคันพิเศษ พร้อมให้คำปรึกษาและดูแลเอกสารครบทุกขั้นตอน</p>
@@ -26,6 +26,6 @@
     </div>
     <div class="container copyright">© <?= date('Y') ?> MY NAME IS TABIEN CO.,LTD.</div>
 </footer>
-<script src="/assets/app.js?v=<?= (int) filemtime(dirname(__DIR__) . '/assets/app.js') ?>"></script>
+<script src="/assets/app.js?v=<?= (int) filemtime(dirname(__DIR__) . '/assets/app.js') ?>" defer></script>
 </body>
 </html>

@@ -86,6 +86,16 @@ if ($page === 'detail') {
     $similar = $stmt->fetchAll();
 
     $plateName = $plate['prefix'] . ' ' . $plate['number'];
+    $detailImage = (string) ($plate['image'] ?? '');
+    if ($detailImage !== '' && preg_match('/\.jpe?g$/i', $detailImage)) {
+        $detailWebp = preg_replace('/\.jpe?g$/i', '.webp', $detailImage);
+        if ($detailWebp && is_file(__DIR__ . '/' . $detailWebp)) {
+            $detailImage = $detailWebp;
+        }
+    }
+    $detailImageSize = $detailImage !== '' && is_file(__DIR__ . '/' . $detailImage)
+        ? @getimagesize(__DIR__ . '/' . $detailImage)
+        : false;
     $pageTitle = 'ป้ายทะเบียน ' . $plateName . ' ' . $plate['province'] . ' ราคา ' . number_format((float) $plate['price']) . ' บาท';
     $pageDescription = 'ซื้อป้ายทะเบียน ' . $plateName . ' จังหวัด' . $plate['province'] . ' ราคา ' . number_format((float) $plate['price']) . ' บาท พร้อมบริการด้านทะเบียนและดูแลเอกสารครบขั้นตอน';
     $canonicalPath = '/plate/' . (int) $plate['id'];
@@ -121,7 +131,7 @@ if ($page === 'detail') {
         <div class="container detail-grid">
             <div class="detail-visual">
                 <?php if (!empty($plate['image'])): ?>
-                    <img src="/<?= e($plate['image']) ?>" alt="ทะเบียน <?= e($plate['prefix'] . ' ' . $plate['number']) ?>">
+                    <img src="/<?= e($detailImage) ?>" width="<?= (int) ($detailImageSize[0] ?? 720) ?>" height="<?= (int) ($detailImageSize[1] ?? 614) ?>" fetchpriority="high" decoding="async" alt="ทะเบียน <?= e($plate['prefix'] . ' ' . $plate['number']) ?>">
                 <?php else: ?>
                     <div class="license-plate license-plate-large">
                         <div><span><?= e($plate['prefix']) ?></span> <strong><?= e($plate['number']) ?></strong></div>
@@ -288,7 +298,11 @@ $structuredData = [[
 require __DIR__ . '/partials/header.php';
 ?>
 <section class="visual-hero" id="welcome">
-    <img src="/image/1.jpg" alt="ป้ายทะเบียนประมูลภูเก็ต เมืองเก่าภูเก็ต และรถสปอร์ต">
+    <picture>
+        <source media="(max-width: 768px)" srcset="/image/hero-768.webp" type="image/webp">
+        <source srcset="/image/hero-1280.webp" type="image/webp">
+        <img src="/image/1.jpg" width="1536" height="1024" fetchpriority="high" decoding="async" alt="ป้ายทะเบียนประมูลภูเก็ต เมืองเก่าภูเก็ต และรถสปอร์ต">
+    </picture>
 </section>
 <section class="welcome-strip" id="intro">
     <div class="container welcome-inner reveal">
@@ -339,7 +353,7 @@ require __DIR__ . '/partials/header.php';
 <section class="editorial-section" id="why">
     <div class="container editorial-card editorial-dark reveal">
         <div class="editorial-image">
-            <img src="/image/3.jpg" alt="ทิวทัศน์แหลมพรหมเทพ จังหวัดภูเก็ต">
+            <img src="/image/3.webp" width="960" height="640" loading="lazy" decoding="async" alt="ทิวทัศน์แหลมพรหมเทพ จังหวัดภูเก็ต">
         </div>
         <div class="editorial-copy">
             <span class="editorial-kicker">WHY PREMIUM PLATES</span>
@@ -367,7 +381,7 @@ require __DIR__ . '/partials/header.php';
             </div>
         </div>
         <div class="editorial-image">
-            <img src="/image/5.jpg" alt="พระพุทธมิ่งมงคลเอกนาคคีรี จังหวัดภูเก็ต">
+            <img src="/image/5.webp" width="960" height="639" loading="lazy" decoding="async" alt="พระพุทธมิ่งมงคลเอกนาคคีรี จังหวัดภูเก็ต">
         </div>
     </div>
 </section>

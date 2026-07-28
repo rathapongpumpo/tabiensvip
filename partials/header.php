@@ -55,9 +55,9 @@ if ($activePage === 'home') {
     <meta name="twitter:image" content="<?= e($ogImage) ?>">
     <title><?= e($pageTitle) ?></title>
     <link rel="icon" href="/image/logo_บริษัท.jpg" type="image/jpeg">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@400;500;600;700;800&family=Pridi:wght@500;600&display=swap" rel="stylesheet">
+    <?php if ($activePage === 'home'): ?>
+        <link rel="preload" as="image" href="/image/hero-768.webp" imagesrcset="/image/hero-768.webp 768w, /image/hero-1280.webp 1280w" imagesizes="100vw" type="image/webp" fetchpriority="high">
+    <?php endif; ?>
     <link rel="stylesheet" href="/assets/style.css?v=<?= (int) filemtime(dirname(__DIR__) . '/assets/style.css') ?>">
     <script type="application/ld+json"><?= json_encode([
         '@context' => 'https://schema.org',
@@ -68,8 +68,8 @@ if ($activePage === 'home') {
 <a class="skip-link" href="#main-content">ข้ามไปยังเนื้อหา</a>
 <header class="site-header">
     <div class="container nav-wrap">
-        <a class="brand" href="/" aria-label="หน้าแรก">
-            <img class="brand-logo" src="/image/logo_บริษัท.jpg" alt="">
+        <a class="brand" href="/">
+            <img class="brand-logo" src="/image/logo-240.webp" width="240" height="160" alt="">
             <span><strong>MY NAME IS TABIEN</strong><small>CO.,LTD. · PHUKET</small></span>
         </a>
         <button class="nav-toggle" type="button" aria-label="เปิดเมนู" aria-expanded="false" aria-controls="main-navigation">☰</button>
