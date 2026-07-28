@@ -1,5 +1,9 @@
 DirectoryIndex index.php
-Options -MultiViews
+Options -Indexes -MultiViews
+
+<FilesMatch "^(config(?:\.local)?\.php|.*\.sqlite(?:-.*)?)$">
+    Require all denied
+</FilesMatch>
 
 RewriteEngine On
 

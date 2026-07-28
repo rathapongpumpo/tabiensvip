@@ -52,7 +52,6 @@ if (!is_admin()) {
             <label>รหัสผ่าน<input type="password" name="password" required autocomplete="current-password"></label>
             <button class="admin-btn" type="submit">เข้าสู่ระบบ</button>
         </form>
-        <div class="login-hint">บัญชีเริ่มต้น: admin / admin123</div>
     </div></body></html>
     <?php
     exit;

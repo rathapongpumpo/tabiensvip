@@ -6,12 +6,29 @@ const DB_PATH = __DIR__ . '/storage/tabian.sqlite';
 const UPLOAD_DIR = __DIR__ . '/uploads';
 const UPLOAD_WEB_PATH = 'uploads';
 
+$databaseConfig = [
+    'driver' => 'sqlite',
+    'host' => 'localhost',
+    'port' => 3306,
+    'name' => '',
+    'user' => '',
+    'password' => '',
+];
+$localConfigFile = __DIR__ . '/config.local.php';
+if (is_file($localConfigFile)) {
+    $localConfig = require $localConfigFile;
+    if (is_array($localConfig)) {
+        $databaseConfig = array_replace($databaseConfig, $localConfig);
+    }
+}
+
 if (session_status() !== PHP_SESSION_ACTIVE) {
     session_start();
 }
 
 function db(): PDO
 {
+    global $databaseConfig;
     static $pdo = null;
     if ($pdo instanceof PDO) {
         return $pdo;
@@ -24,18 +41,71 @@ function db(): PDO
         mkdir(UPLOAD_DIR, 0775, true);
     }
 
-    $pdo = new PDO('sqlite:' . DB_PATH);
+    $driver = $databaseConfig['driver'] ?? 'sqlite';
+    if ($driver === 'mysql') {
+        $dsn = sprintf(
+            'mysql:host=%s;port=%d;dbname=%s;charset=utf8mb4',
+            $databaseConfig['host'],
+            $databaseConfig['port'],
+            $databaseConfig['name']
+        );
+        $pdo = new PDO($dsn, $databaseConfig['user'], $databaseConfig['password'], [
+            PDO::ATTR_EMULATE_PREPARES => false,
+        ]);
+    } else {
+        $pdo = new PDO('sqlite:' . DB_PATH);
+    }
     $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
     $pdo->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_ASSOC);
-    $pdo->exec('PRAGMA foreign_keys = ON');
-    initialize_database($pdo);
+    if ($driver === 'sqlite') {
+        $pdo->exec('PRAGMA foreign_keys = ON');
+    }
+    initialize_database($pdo, $driver);
 
     return $pdo;
 }
 
-function initialize_database(PDO $pdo): void
+function initialize_database(PDO $pdo, string $driver = 'sqlite'): void
 {
-    $pdo->exec(
+    global $databaseConfig;
+    if ($driver === 'mysql') {
+        $pdo->exec(
+            'CREATE TABLE IF NOT EXISTS admins (
+                id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+                username VARCHAR(100) NOT NULL UNIQUE,
+                password_hash VARCHAR(255) NOT NULL,
+                created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+            CREATE TABLE IF NOT EXISTS plates (
+                id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+                prefix VARCHAR(50) NOT NULL,
+                number VARCHAR(20) NOT NULL,
+                province VARCHAR(100) NOT NULL DEFAULT "",
+                price DECIMAL(12,2) NOT NULL DEFAULT 0,
+                category VARCHAR(100) NOT NULL DEFAULT "",
+                description TEXT NOT NULL,
+                meaning TEXT NOT NULL,
+                image VARCHAR(255) NULL,
+                status VARCHAR(20) NOT NULL DEFAULT "available",
+                featured TINYINT(1) NOT NULL DEFAULT 0,
+                display_order INT NOT NULL DEFAULT 999,
+                created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+            CREATE TABLE IF NOT EXISTS reservations (
+                id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+                plate_id INT UNSIGNED NOT NULL,
+                customer_name VARCHAR(150) NOT NULL,
+                phone VARCHAR(50) NOT NULL,
+                line_id VARCHAR(100) NOT NULL DEFAULT "",
+                note TEXT NOT NULL,
+                status VARCHAR(20) NOT NULL DEFAULT "new",
+                created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                CONSTRAINT fk_reservation_plate FOREIGN KEY (plate_id) REFERENCES plates(id) ON DELETE CASCADE
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;'
+        );
+    } else {
+        $pdo->exec(
         'CREATE TABLE IF NOT EXISTS admins (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             username TEXT NOT NULL UNIQUE,
@@ -69,16 +139,20 @@ function initialize_database(PDO $pdo): void
             created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
             FOREIGN KEY (plate_id) REFERENCES plates(id) ON DELETE CASCADE
         );'
-    );
+        );
+    }
 
-    $plateColumns = $pdo->query('PRAGMA table_info(plates)')->fetchAll();
-    if (!in_array('display_order', array_column($plateColumns, 'name'), true)) {
-        $pdo->exec('ALTER TABLE plates ADD COLUMN display_order INTEGER NOT NULL DEFAULT 999');
+    if ($driver === 'sqlite') {
+        $plateColumns = $pdo->query('PRAGMA table_info(plates)')->fetchAll();
+        if (!in_array('display_order', array_column($plateColumns, 'name'), true)) {
+            $pdo->exec('ALTER TABLE plates ADD COLUMN display_order INTEGER NOT NULL DEFAULT 999');
+        }
     }
 
     if ((int) $pdo->query('SELECT COUNT(*) FROM admins')->fetchColumn() === 0) {
         $stmt = $pdo->prepare('INSERT INTO admins (username, password_hash) VALUES (?, ?)');
-        $stmt->execute(['admin', password_hash('admin123', PASSWORD_DEFAULT)]);
+        $initialPassword = (string) ($databaseConfig['initial_admin_password'] ?? 'admin123');
+        $stmt->execute(['admin', password_hash($initialPassword, PASSWORD_DEFAULT)]);
     }
 
     if ((int) $pdo->query('SELECT COUNT(*) FROM plates')->fetchColumn() === 0) {
@@ -99,7 +173,9 @@ function initialize_database(PDO $pdo): void
         }
     }
 
-    $pdo->exec('CREATE TABLE IF NOT EXISTS app_meta (meta_key TEXT PRIMARY KEY, meta_value TEXT NOT NULL)');
+    $pdo->exec($driver === 'mysql'
+        ? 'CREATE TABLE IF NOT EXISTS app_meta (meta_key VARCHAR(190) PRIMARY KEY, meta_value TEXT NOT NULL) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci'
+        : 'CREATE TABLE IF NOT EXISTS app_meta (meta_key TEXT PRIMARY KEY, meta_value TEXT NOT NULL)');
     $migration = $pdo->prepare('SELECT meta_value FROM app_meta WHERE meta_key = ?');
     $migration->execute(['product_images_v1']);
     if (!$migration->fetchColumn()) {
@@ -125,12 +201,12 @@ function initialize_database(PDO $pdo): void
             'UPDATE plates SET status = "hidden"
              WHERE image IS NULL AND number IN ("88","999","168","1234","5555","789")'
         );
-        $stmt = $pdo->prepare(
+        $insertProductSql =
             'INSERT INTO plates
                 (prefix,number,province,price,category,description,meaning,image,status,featured,display_order)
              VALUES (?,?,"ภูเก็ต",?,?,"ทะเบียนประมูลภูเก็ต พร้อมป้ายคู่","เลขสวย คัดสรรเพื่อความโดดเด่นและความหมายที่ดี",?,"available",?,?)
-             ON CONFLICT DO NOTHING'
-        );
+             ' . ($driver === 'mysql' ? 'ON DUPLICATE KEY UPDATE number=VALUES(number)' : 'ON CONFLICT DO NOTHING');
+        $stmt = $pdo->prepare($insertProductSql);
         foreach ($products as [$prefix, $number, $price, $category, $image, $order]) {
             $stmt->execute([$prefix, $number, $price, $category, $image, $order <= 4 ? 1 : 0, $order]);
         }
