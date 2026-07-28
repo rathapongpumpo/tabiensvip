@@ -1,6 +1,2 @@
-/storage/*.sqlite
-/storage/*.sqlite-*
-/uploads/*
-!/uploads/.gitkeep
 .DS_Store
 Thumbs.db
