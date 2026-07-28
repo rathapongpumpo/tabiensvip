@@ -85,3 +85,4 @@ body{background:var(--cream)}.site-header{height:84px;background:rgba(255,253,24
 .plate-meta{color:#755719}
 .copyright{color:#a7b7c8}
 .editorial-section,.products-section,.reviews-section,.contact-section,.seo-guide-section{content-visibility:auto;contain-intrinsic-size:auto 760px}
+.products-more{display:flex;justify-content:center;margin-top:38px}.products-more .btn{min-width:220px}@media(max-width:700px){.products-more{margin-top:26px}.products-more .btn{width:100%}}

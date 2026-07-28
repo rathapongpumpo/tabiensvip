@@ -273,7 +273,8 @@ if ($page === 'plates') {
 $homeProducts = $pdo->query(
     'SELECT * FROM plates
      WHERE status != "hidden" AND image LIKE "image/435%_0.jpg"
-     ORDER BY display_order ASC'
+     ORDER BY display_order ASC
+     LIMIT 9'
 )->fetchAll();
 $pageTitle = 'ป้ายทะเบียนประมูลภูเก็ตราคาคุ้มค่า | MY NAME IS TABIEN';
 $pageDescription = 'ป้ายทะเบียนประมูลภูเก็ตราคาถูกและคุ้มค่า พร้อมบริการด้านทะเบียน ซื้อขาย ฝากขาย วิเคราะห์เลขมงคล และดูแลเอกสารโดยทีมงานมืออาชีพ';
@@ -394,6 +395,9 @@ require __DIR__ . '/partials/header.php';
         </div>
         <div class="plate-grid product-grid">
             <?php foreach ($homeProducts as $plate): require __DIR__ . '/partials/plate-card.php'; endforeach; ?>
+        </div>
+        <div class="products-more reveal">
+            <a class="btn btn-primary" href="/plates">ดูทะเบียนทั้งหมด</a>
         </div>
     </div>
 </section>
