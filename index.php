@@ -13,6 +13,24 @@ if ($requestPath === 'plates') {
     $_GET['id'] = $routeMatch[1];
 }
 
+if ($requestPath === 'sitemap.xml') {
+    $platesForSitemap = $pdo->query(
+        'SELECT id, updated_at FROM plates WHERE status != "hidden" ORDER BY id'
+    )->fetchAll();
+    header('Content-Type: application/xml; charset=utf-8');
+    echo '<?xml version="1.0" encoding="UTF-8"?>';
+    echo '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">';
+    echo '<url><loc>https://tabiensvip.com/</loc><changefreq>weekly</changefreq><priority>1.0</priority></url>';
+    echo '<url><loc>https://tabiensvip.com/plates</loc><changefreq>daily</changefreq><priority>0.9</priority></url>';
+    foreach ($platesForSitemap as $sitemapPlate) {
+        echo '<url><loc>https://tabiensvip.com/plate/' . (int) $sitemapPlate['id'] . '</loc>';
+        echo '<lastmod>' . e(date('Y-m-d', strtotime($sitemapPlate['updated_at']))) . '</lastmod>';
+        echo '<changefreq>weekly</changefreq><priority>0.7</priority></url>';
+    }
+    echo '</urlset>';
+    exit;
+}
+
 if ($requestPath === 'index.php' && $_SERVER['REQUEST_METHOD'] === 'GET') {
     $legacyPage = $_GET['page'] ?? 'home';
     $destination = match ($legacyPage) {
@@ -56,6 +74,8 @@ if ($page === 'detail') {
     if (!$plate) {
         http_response_code(404);
         $pageTitle = 'ไม่พบทะเบียน | ' . APP_NAME;
+        $pageDescription = 'ไม่พบรายการป้ายทะเบียนที่ต้องการ กรุณาเลือกชมป้ายทะเบียนประมูลภูเก็ตและทะเบียนเลขสวยรายการอื่น';
+        $robotsContent = 'noindex,follow';
         require __DIR__ . '/partials/header.php';
         echo '<section class="empty-state"><div class="container"><h1>ไม่พบทะเบียนที่ต้องการ</h1><a class="btn btn-primary" href="/plates">ดูทะเบียนทั้งหมด</a></div></section>';
         require __DIR__ . '/partials/footer.php';
@@ -65,7 +85,29 @@ if ($page === 'detail') {
     $stmt->execute([$id, $plate['category']]);
     $similar = $stmt->fetchAll();
 
-    $pageTitle = $plate['prefix'] . ' ' . $plate['number'] . ' ' . $plate['province'] . ' | ' . APP_NAME;
+    $plateName = $plate['prefix'] . ' ' . $plate['number'];
+    $pageTitle = 'ป้ายทะเบียน ' . $plateName . ' ' . $plate['province'] . ' ราคา ' . number_format((float) $plate['price']) . ' บาท';
+    $pageDescription = 'ซื้อป้ายทะเบียน ' . $plateName . ' จังหวัด' . $plate['province'] . ' ราคา ' . number_format((float) $plate['price']) . ' บาท พร้อมบริการด้านทะเบียนและดูแลเอกสารครบขั้นตอน';
+    $canonicalPath = '/plate/' . (int) $plate['id'];
+    $pageOgType = 'product';
+    $ogImage = !empty($plate['image']) ? 'https://tabiensvip.com/' . $plate['image'] : 'https://tabiensvip.com/image/1.jpg';
+    $availability = $plate['status'] === 'available' ? 'https://schema.org/InStock' : 'https://schema.org/OutOfStock';
+    $structuredData = [[
+        '@type' => 'Product',
+        '@id' => 'https://tabiensvip.com/plate/' . (int) $plate['id'] . '#product',
+        'name' => 'ป้ายทะเบียน ' . $plateName . ' ' . $plate['province'],
+        'image' => [$ogImage],
+        'description' => $pageDescription,
+        'category' => $plate['category'],
+        'offers' => [
+            '@type' => 'Offer',
+            'url' => 'https://tabiensvip.com/plate/' . (int) $plate['id'],
+            'priceCurrency' => 'THB',
+            'price' => (float) $plate['price'],
+            'availability' => $availability,
+            'seller' => ['@id' => 'https://tabiensvip.com/#organization'],
+        ],
+    ]];
     $activePage = 'plates';
     require __DIR__ . '/partials/header.php';
     ?>
@@ -151,7 +193,10 @@ if ($page === 'plates') {
     $where = ['status != "hidden"'];
     $params = [];
     if ($keyword !== '') {
-        $where[] = '(prefix LIKE ? OR number LIKE ? OR province LIKE ? OR (prefix || number) LIKE ?)';
+        $joinedPlate = $pdo->getAttribute(PDO::ATTR_DRIVER_NAME) === 'mysql'
+            ? 'CONCAT(prefix, number)'
+            : '(prefix || number)';
+        $where[] = '(prefix LIKE ? OR number LIKE ? OR province LIKE ? OR ' . $joinedPlate . ' LIKE ?)';
         $term = '%' . $keyword . '%';
         array_push($params, $term, $term, $term, $term);
     }
@@ -176,7 +221,12 @@ if ($page === 'plates') {
     $plates = $stmt->fetchAll();
     $categories = $pdo->query('SELECT DISTINCT category FROM plates ORDER BY category')->fetchAll(PDO::FETCH_COLUMN);
 
-    $pageTitle = 'ทะเบียนทั้งหมด | ' . APP_NAME;
+    $pageTitle = 'ป้ายทะเบียนประมูลภูเก็ต ราคาคุ้มค่า | MY NAME IS TABIEN';
+    $pageDescription = 'รวมป้ายทะเบียนประมูลภูเก็ตและทะเบียนเลขสวย พร้อมราคา สถานะ และบริการด้านทะเบียนครบวงจร ค้นหาตามเลข หมวดหมู่ และงบประมาณได้ทันที';
+    $canonicalPath = '/plates';
+    if ($keyword !== '' || $category !== '' || $status !== '' || $featured || $sort !== 'newest') {
+        $robotsContent = 'noindex,follow';
+    }
     $activePage = 'plates';
     require __DIR__ . '/partials/header.php';
     ?>
@@ -215,8 +265,26 @@ $homeProducts = $pdo->query(
      WHERE status != "hidden" AND image LIKE "image/435%_0.jpg"
      ORDER BY display_order ASC'
 )->fetchAll();
-$pageTitle = APP_NAME . ' | ทะเบียนประมูลภูเก็ต';
+$pageTitle = 'ป้ายทะเบียนประมูลภูเก็ตราคาคุ้มค่า | MY NAME IS TABIEN';
+$pageDescription = 'ป้ายทะเบียนประมูลภูเก็ตราคาถูกและคุ้มค่า พร้อมบริการด้านทะเบียน ซื้อขาย ฝากขาย วิเคราะห์เลขมงคล และดูแลเอกสารโดยทีมงานมืออาชีพ';
+$canonicalPath = '/';
 $activePage = 'home';
+$homeFaq = [
+    ['question' => 'ป้ายทะเบียนประมูลภูเก็ตราคาเริ่มต้นเท่าไร?', 'answer' => 'ราคาขึ้นอยู่กับหมวดอักษร รูปแบบตัวเลข และความนิยม โดยหน้าเว็บไซต์แสดงราคาของแต่ละรายการอย่างชัดเจนเพื่อให้เปรียบเทียบได้ง่าย'],
+    ['question' => 'มีบริการด้านทะเบียนอะไรบ้าง?', 'answer' => 'เราดูแลการซื้อขาย ฝากขาย จัดหาเลข วิเคราะห์เลขมงคล และให้คำปรึกษาเรื่องเอกสารทะเบียนครบทุกขั้นตอน'],
+    ['question' => 'เลือกป้ายทะเบียนราคาถูกและคุ้มค่าอย่างไร?', 'answer' => 'กำหนดงบประมาณ เลือกรูปแบบเลขที่ต้องการ แล้วใช้ตัวกรองราคาและหมวดหมู่เพื่อเปรียบเทียบรายการที่พร้อมขาย'],
+];
+$structuredData = [[
+    '@type' => 'FAQPage',
+    'mainEntity' => array_map(static fn(array $item): array => [
+        '@type' => 'Question',
+        'name' => $item['question'],
+        'acceptedAnswer' => [
+            '@type' => 'Answer',
+            'text' => $item['answer'],
+        ],
+    ], $homeFaq),
+]];
 require __DIR__ . '/partials/header.php';
 ?>
 <section class="visual-hero" id="welcome">
@@ -226,7 +294,7 @@ require __DIR__ . '/partials/header.php';
     <div class="container welcome-inner reveal">
         <div>
             <span class="eyebrow">MY NAME IS TABIEN CO.,LTD.</span>
-            <h1>เลือกทะเบียนที่สะท้อนตัวตนของคุณ</h1>
+            <h1>ป้ายทะเบียนประมูลภูเก็ต<br>ที่สะท้อนตัวตนของคุณ</h1>
         </div>
         <p>ซื้อ–ขายทะเบียนประมูลภูเก็ต วิเคราะห์เลขมงคล ฝากขาย และดูแลเอกสารครบทุกขั้นตอน</p>
         <div class="hero-cta">
@@ -245,6 +313,25 @@ require __DIR__ . '/partials/header.php';
             <article class="service-card pastel-purple reveal"><span>03</span><h3>วิเคราะห์เลขมงคล</h3><p>แนะนำความหมายและพลังของตัวเลขอย่างเหมาะสม</p></article>
             <article class="service-card pastel-mint reveal"><span>04</span><h3>ดูแลเอกสาร</h3><p>ให้คำปรึกษาและประสานงานจนเสร็จสมบูรณ์</p></article>
             <article class="service-card pastel-gold reveal"><span>05</span><h3>ฝากขายทะเบียน</h3><p>ประเมินราคาและนำเสนอทะเบียนอย่างมืออาชีพ</p></article>
+        </div>
+    </div>
+</section>
+
+<section class="section seo-guide-section" aria-labelledby="seo-guide-title">
+    <div class="container seo-guide-wrap">
+        <div class="seo-guide-intro reveal">
+            <span class="eyebrow">PHUKET REGISTRATION GUIDE</span>
+            <h2 id="seo-guide-title">ป้ายทะเบียนประมูลภูเก็ตราคาถูกและคุ้มค่า เลือกอย่างไร?</h2>
+            <p>เราแสดงราคาและสถานะของทะเบียนแต่ละรายการอย่างชัดเจน ช่วยให้คุณเปรียบเทียบเลขสวยตามงบประมาณได้ง่าย พร้อมบริการด้านทะเบียนครบตั้งแต่เลือกเลข ฝากขาย วิเคราะห์ความหมาย ไปจนถึงคำแนะนำเรื่องเอกสาร</p>
+            <a class="text-link" href="/plates?sort=price_asc">ดูทะเบียนเรียงจากราคาน้อยไปมาก →</a>
+        </div>
+        <div class="faq-list reveal">
+            <?php foreach ($homeFaq as $index => $faq): ?>
+                <details <?= $index === 0 ? 'open' : '' ?>>
+                    <summary><?= e($faq['question']) ?></summary>
+                    <p><?= e($faq['answer']) ?></p>
+                </details>
+            <?php endforeach; ?>
         </div>
     </div>
 </section>

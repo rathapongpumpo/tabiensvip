@@ -1,5 +1,9 @@
 <?php declare(strict_types=1); ?>
 </main>
+<nav class="mobile-quick-actions" aria-label="ทางลัด">
+    <a class="btn btn-primary" href="/plates">เลือกชมทะเบียน</a>
+    <a class="btn btn-glass" href="/#contact">ปรึกษาเรา</a>
+</nav>
 <footer class="site-footer">
     <div class="container footer-grid">
         <div>
@@ -22,6 +26,6 @@
     </div>
     <div class="container copyright">© <?= date('Y') ?> MY NAME IS TABIEN CO.,LTD.</div>
 </footer>
-<script src="/assets/app.js"></script>
+<script src="/assets/app.js?v=<?= (int) filemtime(dirname(__DIR__) . '/assets/app.js') ?>"></script>
 </body>
 </html>

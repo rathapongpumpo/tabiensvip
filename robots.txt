@@ -1,0 +1,7 @@
+User-agent: *
+Allow: /
+Disallow: /admin/
+Disallow: /config.php
+Disallow: /config.local.php
+
+Sitemap: https://tabiensvip.com/sitemap.xml
