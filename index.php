@@ -283,6 +283,7 @@ $pageTitle = 'ป้ายทะเบียนประมูลภูเก็
 $pageDescription = 'ป้ายทะเบียนประมูลภูเก็ตราคาถูกและคุ้มค่า พร้อมบริการด้านทะเบียน ซื้อขาย ฝากขาย วิเคราะห์เลขมงคล และดูแลเอกสารโดยทีมงานมืออาชีพ';
 $canonicalPath = '/';
 $activePage = 'home';
+$heroImageVersion = (string) filemtime(__DIR__ . '/image/hero-home.jpg');
 $homeFaq = [
     ['question' => 'ป้ายทะเบียนประมูลภูเก็ตราคาเริ่มต้นเท่าไร?', 'answer' => 'ราคาขึ้นอยู่กับหมวดอักษร รูปแบบตัวเลข และความนิยม โดยหน้าเว็บไซต์แสดงราคาของแต่ละรายการอย่างชัดเจนเพื่อให้เปรียบเทียบได้ง่าย'],
     ['question' => 'มีบริการด้านทะเบียนอะไรบ้าง?', 'answer' => 'เราดูแลการซื้อขาย ฝากขาย จัดหาเลข วิเคราะห์เลขมงคล และให้คำปรึกษาเรื่องเอกสารทะเบียนครบทุกขั้นตอน'],
@@ -303,9 +304,7 @@ require __DIR__ . '/partials/header.php';
 ?>
 <section class="visual-hero" id="welcome">
     <picture>
-        <source media="(max-width: 768px)" srcset="/image/hero-768.webp" type="image/webp">
-        <source srcset="/image/hero-1280.webp" type="image/webp">
-        <img src="/image/1.jpg" width="1536" height="1024" fetchpriority="high" decoding="async" alt="ป้ายทะเบียนประมูลภูเก็ต เมืองเก่าภูเก็ต และรถสปอร์ต">
+        <img src="/image/hero-home.jpg?v=<?= e($heroImageVersion) ?>" width="1536" height="815" fetchpriority="high" decoding="async" alt="ป้ายทะเบียนประมูลภูเก็ต เมืองเก่าภูเก็ต และรถสปอร์ต">
     </picture>
 </section>
 <section class="welcome-strip" id="intro">

@@ -56,7 +56,7 @@ if ($activePage === 'home') {
     <title><?= e($pageTitle) ?></title>
     <link rel="icon" href="/image/logo_บริษัท.jpg" type="image/jpeg">
     <?php if ($activePage === 'home'): ?>
-        <link rel="preload" as="image" href="/image/hero-768.webp" imagesrcset="/image/hero-768.webp 768w, /image/hero-1280.webp 1280w" imagesizes="100vw" type="image/webp" fetchpriority="high">
+        <link rel="preload" as="image" href="/image/hero-home.jpg?v=<?= e($heroImageVersion ?? (string) filemtime(__DIR__ . '/../image/hero-home.jpg')) ?>" type="image/jpeg" fetchpriority="high">
     <?php endif; ?>
     <link rel="stylesheet" href="/assets/style.css?v=<?= (int) filemtime(dirname(__DIR__) . '/assets/style.css') ?>">
     <script type="application/ld+json"><?= json_encode([
