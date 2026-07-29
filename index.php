@@ -129,7 +129,7 @@ if ($page === 'detail') {
     </section>
     <section class="section">
         <div class="container detail-grid">
-            <div class="detail-visual">
+            <div class="detail-visual<?= !empty($plate['image']) ? ' has-upload' : '' ?>">
                 <?php if (!empty($plate['image'])): ?>
                     <img src="/<?= e($detailImage) ?>" width="<?= (int) ($detailImageSize[0] ?? 720) ?>" height="<?= (int) ($detailImageSize[1] ?? 614) ?>" fetchpriority="high" decoding="async" alt="ทะเบียน <?= e($plate['prefix'] . ' ' . $plate['number']) ?>">
                 <?php else: ?>
@@ -337,7 +337,10 @@ require __DIR__ . '/partials/header.php';
             <a class="text-link" href="/plates">ค้นหาทั้งหมด →</a>
         </div>
         <div class="plate-grid product-grid">
-            <?php foreach ($homeProducts as $plate): require __DIR__ . '/partials/plate-card.php'; endforeach; ?>
+            <?php foreach ($homeProducts as $index => $plate): ?>
+                <?php $plateImageLoading = $index < 3 ? 'eager' : 'lazy'; ?>
+                <?php require __DIR__ . '/partials/plate-card.php'; ?>
+            <?php endforeach; ?>
         </div>
         <div class="products-more reveal">
             <a class="btn btn-primary" href="/plates">ดูทะเบียนทั้งหมด</a>

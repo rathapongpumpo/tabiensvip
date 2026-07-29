@@ -10,6 +10,7 @@ if ($plateImage !== '' && preg_match('/\.jpe?g$/i', $plateImage)) {
 }
 $plateImageWidth = 720;
 $plateImageHeight = 614;
+$plateImageLoading = isset($plateImageLoading) && $plateImageLoading === 'eager' ? 'eager' : 'lazy';
 if ($plateImage !== '' && is_file(dirname(__DIR__) . '/' . $plateImage)) {
     $plateImageSize = @getimagesize(dirname(__DIR__) . '/' . $plateImage);
     if ($plateImageSize) {
@@ -18,11 +19,11 @@ if ($plateImage !== '' && is_file(dirname(__DIR__) . '/' . $plateImage)) {
 }
 ?>
 <article class="plate-card">
-    <div class="plate-card-top">
+    <div class="plate-card-top<?= !empty($plate['image']) ? ' has-upload' : '' ?>">
         <?php if (!empty($plate['featured'])): ?><span class="featured-badge">แนะนำ</span><?php endif; ?>
         <span class="status-badge status-<?= e($plate['status']) ?>"><?= e(status_label($plate['status'])) ?></span>
         <?php if (!empty($plate['image'])): ?>
-            <img class="plate-upload" src="/<?= e($plateImage) ?>" width="<?= (int) $plateImageWidth ?>" height="<?= (int) $plateImageHeight ?>" loading="lazy" decoding="async" alt="ทะเบียน <?= e($plate['prefix'] . ' ' . $plate['number']) ?>">
+            <img class="plate-upload" src="/<?= e($plateImage) ?>" width="<?= (int) $plateImageWidth ?>" height="<?= (int) $plateImageHeight ?>" loading="<?= e($plateImageLoading) ?>" decoding="async" alt="ทะเบียน <?= e($plate['prefix'] . ' ' . $plate['number']) ?>">
         <?php else: ?>
             <div class="license-plate" aria-label="ทะเบียน <?= e($plate['prefix'] . ' ' . $plate['number'] . ' ' . $plate['province']) ?>">
                 <div><span><?= e($plate['prefix']) ?></span> <strong><?= e($plate['number']) ?></strong></div>
