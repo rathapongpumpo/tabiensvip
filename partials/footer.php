@@ -25,7 +25,6 @@
         </div>
     </div>
     <div class="container copyright">© <?= date('Y') ?> MY NAME IS TABIEN CO.,LTD.</div>
-    <div class="impact-site-verification">Impact-Site-Verification: a9efd229-dfee-4ef7-850a-42ef4e0da638</div>
 </footer>
 <script src="/assets/app.js?v=<?= (int) filemtime(dirname(__DIR__) . '/assets/app.js') ?>" defer></script>
 </body>

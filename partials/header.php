@@ -39,6 +39,9 @@ if ($activePage === 'home') {
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <?php if ($activePage === 'home'): ?>
+        <meta name='impact-site-verification' value='a9efd229-dfee-4ef7-850a-42ef4e0da638'>
+    <?php endif; ?>
     <meta name="description" content="<?= e($pageDescription) ?>">
     <meta name="robots" content="<?= e($robotsContent) ?>">
     <link rel="canonical" href="<?= e($canonicalUrl) ?>">
