@@ -276,6 +276,9 @@ $homeProducts = $pdo->query(
      ORDER BY display_order ASC
      LIMIT 9'
 )->fetchAll();
+$availablePlateCount = (int) $pdo->query(
+    'SELECT COUNT(*) FROM plates WHERE status = "available"'
+)->fetchColumn();
 $pageTitle = 'ป้ายทะเบียนประมูลภูเก็ตราคาคุ้มค่า | MY NAME IS TABIEN';
 $pageDescription = 'ป้ายทะเบียนประมูลภูเก็ตราคาถูกและคุ้มค่า พร้อมบริการด้านทะเบียน ซื้อขาย ฝากขาย วิเคราะห์เลขมงคล และดูแลเอกสารโดยทีมงานมืออาชีพ';
 $canonicalPath = '/';
@@ -319,6 +322,30 @@ require __DIR__ . '/partials/header.php';
     </div>
 </section>
 
+<section class="trust-strip" aria-label="จุดเด่นและความน่าเชื่อถือ">
+    <div class="container trust-grid reveal">
+        <div><strong><?= number_format($availablePlateCount) ?></strong><span>ทะเบียนพร้อมขายจริง</span></div>
+        <div><strong>ชัดเจน</strong><span>แสดงราคาและสถานะทุกรายการ</span></div>
+        <div><strong>ครบขั้นตอน</strong><span>ให้คำปรึกษาและดูแลเอกสาร</span></div>
+        <div><strong>PHUKET</strong><span>ทีมงานพร้อมให้บริการในภูเก็ต</span></div>
+    </div>
+</section>
+
+<section class="section products-section products-section-home" id="products">
+    <div class="container">
+        <div class="section-heading reveal">
+            <div><span class="eyebrow">SELECTED PLATES</span><h2>ผลงานและทะเบียนพร้อมขาย</h2><p>ชมทะเบียนจริง พร้อมราคาและสถานะที่ตรวจสอบได้</p></div>
+            <a class="text-link" href="/plates">ค้นหาทั้งหมด →</a>
+        </div>
+        <div class="plate-grid product-grid">
+            <?php foreach ($homeProducts as $plate): require __DIR__ . '/partials/plate-card.php'; endforeach; ?>
+        </div>
+        <div class="products-more reveal">
+            <a class="btn btn-primary" href="/plates">ดูทะเบียนทั้งหมด</a>
+        </div>
+    </div>
+</section>
+
 <section class="section services-section" id="services">
     <div class="container">
         <div class="section-heading center reveal"><div><span class="eyebrow">OUR SERVICES</span><h2>บริการครบ จบในที่เดียว</h2><p>ทุกขั้นตอนดูแลโดยทีมงานที่เข้าใจทะเบียนประมูลภูเก็ต</p></div></div>
@@ -338,7 +365,7 @@ require __DIR__ . '/partials/header.php';
             <span class="eyebrow">PHUKET REGISTRATION GUIDE</span>
             <h2 id="seo-guide-title">ป้ายทะเบียนประมูลภูเก็ตราคาถูกและคุ้มค่า เลือกอย่างไร?</h2>
             <p>เราแสดงราคาและสถานะของทะเบียนแต่ละรายการอย่างชัดเจน ช่วยให้คุณเปรียบเทียบเลขสวยตามงบประมาณได้ง่าย พร้อมบริการด้านทะเบียนครบตั้งแต่เลือกเลข ฝากขาย วิเคราะห์ความหมาย ไปจนถึงคำแนะนำเรื่องเอกสาร</p>
-            <a class="text-link" href="/plates?sort=price_asc">ดูทะเบียนเรียงจากราคาน้อยไปมาก →</a>
+            <a class="text-link" href="/plates">ดูทะเบียนเรียงตามลำดับผลรวมดี →</a>
         </div>
         <div class="faq-list reveal">
             <?php foreach ($homeFaq as $index => $faq): ?>
@@ -383,21 +410,6 @@ require __DIR__ . '/partials/header.php';
         </div>
         <div class="editorial-image">
             <img src="/image/5.webp" width="960" height="639" loading="lazy" decoding="async" alt="พระพุทธมิ่งมงคลเอกนาคคีรี จังหวัดภูเก็ต">
-        </div>
-    </div>
-</section>
-
-<section class="section products-section" id="products">
-    <div class="container">
-        <div class="section-heading reveal">
-            <div><span class="eyebrow">AVAILABLE NOW</span><h2>ทะเบียนพร้อมขาย</h2><p>เรียงลำดับและราคาอ้างอิงตามรายการที่ได้รับ</p></div>
-            <a class="text-link" href="/plates">ค้นหาทั้งหมด →</a>
-        </div>
-        <div class="plate-grid product-grid">
-            <?php foreach ($homeProducts as $plate): require __DIR__ . '/partials/plate-card.php'; endforeach; ?>
-        </div>
-        <div class="products-more reveal">
-            <a class="btn btn-primary" href="/plates">ดูทะเบียนทั้งหมด</a>
         </div>
     </div>
 </section>
