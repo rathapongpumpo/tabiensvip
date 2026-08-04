@@ -8,14 +8,14 @@
     <div class="container footer-grid">
         <div>
             <a class="brand brand-light" href="/">
-                <img class="brand-logo" src="/image/logo-240.webp" width="240" height="160" loading="lazy" decoding="async" alt="">
+                <img class="brand-logo" src="/image/logo_บริษัท.jpg" width="240" height="160" loading="lazy" decoding="async" alt="MY NAME IS TABIEN">
                 <span><strong>MY NAME IS TABIEN</strong><small>CO.,LTD. · PHUKET</small></span>
             </a>
             <p>คัดสรรทะเบียนสวยสำหรับรถคันพิเศษ พร้อมให้คำปรึกษาและดูแลเอกสารครบทุกขั้นตอน</p>
         </div>
         <div>
             <h3>ติดต่อเรา</h3>
-            <p>โทร: <a href="tel:0898888888">089-888-8888</a><br>LINE: <a href="https://line.me/R/ti/p/@mynameistabien" target="_blank" rel="noopener">@mynameistabien</a><br>เปิดบริการทุกวัน 09:00–18:00 น.</p>
+            <p>โทร: <a href="tel:0846295555">084 629 5555</a><br>LINE: <a href="https://lin.ee/x0uFiDB" target="_blank" rel="noopener">@mynameistabien</a><br>เปิดบริการทุกวัน 09:00–18:00 น.</p>
         </div>
         <div>
             <h3>เมนูลัด</h3>

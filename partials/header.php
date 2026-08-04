@@ -72,7 +72,7 @@ if ($activePage === 'home') {
 <header class="site-header">
     <div class="container nav-wrap">
         <a class="brand" href="/">
-            <img class="brand-logo" src="/image/logo-240.webp" width="240" height="160" alt="">
+            <img class="brand-logo" src="/image/logo_บริษัท.jpg" width="240" height="160" alt="MY NAME IS TABIEN">
             <span><strong>MY NAME IS TABIEN</strong><small>CO.,LTD. · PHUKET</small></span>
         </a>
         <button class="nav-toggle" type="button" aria-label="เปิดเมนู" aria-expanded="false" aria-controls="main-navigation">☰</button>

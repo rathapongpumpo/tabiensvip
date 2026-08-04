@@ -150,7 +150,7 @@ if ($page === 'detail') {
                 <?php endif; ?>
                 <div class="detail-actions">
                     <a class="btn btn-primary" href="#reserve">ขอจองทะเบียน</a>
-                    <a class="btn btn-line" href="https://line.me/R/ti/p/@mynameistabien" target="_blank" rel="noopener">สอบถามทาง LINE</a>
+                    <a class="btn btn-line" href="https://lin.ee/x0uFiDB" target="_blank" rel="noopener">สอบถามทาง LINE</a>
                 </div>
                 <p class="fine-print">การส่งคำขอจองยังไม่ถือเป็นการยืนยันการซื้อ เจ้าหน้าที่จะติดต่อกลับเพื่อตรวจสอบสถานะและแจ้งขั้นตอนอีกครั้ง</p>
             </div>
@@ -433,11 +433,21 @@ require __DIR__ . '/partials/header.php';
             <span class="eyebrow">LET’S FIND YOUR NUMBER</span>
             <h2>ให้เราช่วยค้นหา<br>ทะเบียนที่เป็นคุณ</h2>
             <p>MY NAME IS TABIEN CO.,LTD.<br>พร้อมให้คำปรึกษาทุกวัน 09:00–18:00 น.</p>
+            <div class="qr-code-card" style="margin-top: 24px; display: inline-flex; align-items: center; gap: 16px; padding: 16px 20px; background: rgba(255,255,255,0.85); border-radius: 20px; border: 1px solid rgba(255,255,255,0.9); box-shadow: 0 10px 30px rgba(31,58,95,0.08);">
+                <a href="https://lin.ee/x0uFiDB" target="_blank" rel="noopener" style="display: block; flex-shrink: 0;">
+                    <img src="/image/line-qr.png" alt="LINE QR Code" width="110" height="110" style="border-radius: 12px; display: block;">
+                </a>
+                <div>
+                    <strong style="display: block; color: var(--navy); font-size: 0.98rem; font-weight: 700; margin-bottom: 4px;">สแกนเพื่อแอด LINE</strong>
+                    <span style="display: block; color: var(--muted); font-size: 0.82rem; margin-bottom: 8px;">ปรึกษาหรือสอบถามทะเบียนได้ทันที</span>
+                    <a class="btn btn-line" href="https://lin.ee/x0uFiDB" target="_blank" rel="noopener" style="padding: 6px 14px; font-size: 0.82rem;">แอดไลน์คลิกที่นี่ ↗</a>
+                </div>
+            </div>
         </div>
         <div class="contact-actions">
-            <a href="tel:0898888888"><small>โทรศัพท์</small><strong>089-888-8888</strong></a>
-            <a href="https://line.me/R/ti/p/@mynameistabien" target="_blank" rel="noopener"><small>LINE Official</small><strong>@mynameistabien</strong></a>
-            <a href="mailto:hello@mynameistabien.com"><small>อีเมล</small><strong>hello@mynameistabien.com</strong></a>
+            <a href="tel:0846295555"><small>โทรศัพท์</small><strong>084 629 5555</strong></a>
+            <a href="https://lin.ee/x0uFiDB" target="_blank" rel="noopener"><small>LINE Official</small><strong>@mynameistabien</strong></a>
+            <a href="mailto:iamtabienvip@gmail.com"><small>อีเมล</small><strong>iamtabienvip@gmail.com</strong></a>
         </div>
     </div>
 </section>
